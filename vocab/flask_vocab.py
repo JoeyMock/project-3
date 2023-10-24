@@ -5,6 +5,7 @@ from a scrambled string)
 """
 
 import flask
+from flask import request
 import logging
 
 # Our modules
@@ -60,7 +61,11 @@ def index():
 
 @app.route("/keep_going")
 def keep_going():
-    """
+    """original_string = "Hello, World!"
+character_to_remove = ","
+
+new_string = original_string.replace(character_to_remove, "")
+print(new_string)
     After initial use of index, we keep the same scrambled
     word and try to get more matches
     """
@@ -122,7 +127,6 @@ def check():
     else:
        return flask.redirect(flask.url_for("keep_going"))
 
-
 ###############
 # AJAX request handlers
 #   These return JSON, rather than rendering pages.
@@ -137,6 +141,38 @@ def example():
     rslt = {"key": "value"}
     return flask.jsonify(result=rslt)
 
+@app.route("/_handler")
+def handler():
+    "My handler"
+    app.logger.debug("My handler got a JSON request")
+    matches = flask.session.get("matches", [])
+    
+    text = request.args.get("text", type=str)
+
+    app.logger.debug(len(matches))
+
+    rsltOption = {"word_option": text in WORDS.as_list()}
+    rsltList = {"in_words": charIn(text)}
+    rsltSubmit = {"submitted": text in matches}
+    if(text in WORDS.as_list() and charIn(text) and not text in matches): 
+         matches.append(text)
+         flask.session["matches"] = matches
+
+    app.logger.debug("not continuing")
+
+    lens = {"lens": len(matches)}
+
+    app.logger.debug("continuing")
+
+    return flask.jsonify(rsltOption, rsltList, rsltSubmit, lens)
+
+def charIn (text):
+    mainstring = flask.session["jumble"]
+
+    for char in text:
+        if char not in mainstring: return False
+        else: mainstring = mainstring.replace(char, "", 1)
+    return True
 
 #################
 # Functions used within the templates

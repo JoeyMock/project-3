@@ -77,28 +77,46 @@
                   <label for="attempt">Word:</label>
                   <input id="attempt" name="attempt" type="text" width="15"
                      autocomplete="off"  autofocus />
-                  <input type="submit" name="try" />
                </form>
             </div>
          </div>
          <br />
-         {% if session.matches|length is not equalto 0  %}
          <h2>You found </h2>
          <p id="results">
-            {% for match in session.matches %}
-            {{ match }}
-            {% endfor %}
          </p>
-         {% endif %}
-         {% with messages = get_flashed_messages() %}
-         {% if messages %}
          <!-- Mismatch, already found, etc. "flashed" from Python -->
-         {% for message in messages %}
-         <p class="message">{{ message }}</p>
-         {% endfor %}
-         {% endif %}
-         {% endwith %}
+         <p id="message"> </p>
       </div>
       <!-- container -->
+      <script>
+	      $("#attempt").keyup(function(event) {
+			var txt = $("#attempt").val();  // Current content of the input field
+			var keycode = event.which;      // They key that just went up
+           		var letter = String.fromCharCode(keycode);
+
+			if (! "ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(letter)) { return }
+		
+			console.log("Reached get");
+
+			$.getJSON( "/_handler", { text: txt },
+				function(data) {
+					console.log(data[0]);
+					if((data[0].word_option)==false) console.log("Ew");
+					if((data[0].word_option==false)) $("#message").html("Word is not in list");
+					else if (data[1].in_words==false)  {
+						$("#message").html("Word is not in scramble");
+						console.log("Tried to change");
+						      }
+					else if (data[2].submitted==true)  $("#message").html("Word has already been submitted");
+						      else {
+									    $("#results").append(txt);
+									    $("#message").html("Word found");
+								    }
+
+						      if(data[3].lens>=3) window.location = "http://localhost:5001/success";
+					      }
+			);
+		});
+      </script>
    </body>
 </html>

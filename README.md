@@ -1,3 +1,12 @@
+Author: Joseph Mock
+Email: jmock1881@gmail.com	
+Description: short project creating a web server game, using AJAX to run the game without refreshing the page. 
+
+
+
+
+
+
 # UOCIS322 - Project 3 #
 
 You'll learn about JQuery and asynchronous requests in this project.
